@@ -1,10 +1,8 @@
 import configparser
 from flask import Flask, request, jsonify
-import json
 import numpy as np
 import pandas as pd
 import os
-import time
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
@@ -37,6 +35,7 @@ print("Finished loading the models..")
 # load embeddings
 embeddings_df = pd.read_csv(app.config['EMBEDDINGS_CSV'])
 embeddings_df['embedding'] = embeddings_df["embedding"].apply(lambda x: np.fromstring(x.strip("[]"), dtype=np.float32, sep=" "))
+embeddings_df = embeddings_df[embeddings_df['sentence_type']=="description"]
 embeddings = np.array(embeddings_df["embedding"].tolist())
 
 
@@ -57,7 +56,6 @@ def inference_prompt(input_text):
 
 @app.route('/get_embeddings', methods=['POST'])
 def get_embeddings():
-    # Access JSON data using request.json
     data = request.json
     query = data.get('query')
     embeddings = generate_embeddings.get_embeddings(embedding_model, query)
@@ -70,7 +68,6 @@ def get_embeddings():
 
 @app.route('/get_relevant_resources', methods=['POST'])
 def get_relevant_resources():
-    # Access JSON data using request.json
     data = request.json
     query = data.get('query')
     query_emb = generate_embeddings.get_embeddings(embedding_model, query)
@@ -87,21 +84,18 @@ def get_relevant_resources():
 
 @app.route('/prompt_augmentation', methods=['POST'])
 def prompt_augmentation():
-    # Access JSON data using request.json
     data = request.json
     query = data.get('query')
     context_items = data.get('context_items')
  
     prompt_augmented = prompt_formatter(query, context_items)
 
-    # Use the JSON data in your logic
     return jsonify({
         "prompt_augmented": f"{prompt_augmented}",
     })
 
 @app.route('/inference', methods=['POST'])
 def inference():
-    # Access JSON data using request.json
     data = request.json
     regular_query = data.get('regular_query')
     augmented_query = data.get('augmented_query')
@@ -124,7 +118,6 @@ def inference():
     regular_outputs_decoded = tokenizer.decode(regular_outputs[0])
     augmented_outputs_decoded = tokenizer.decode(augmented_outputs[0])
 
-    # Use the JSON data in your logic
     return jsonify({
         "regular_decoded_output": f"{regular_outputs_decoded}",
         "augmented_decoded_output": f"{augmented_outputs_decoded}",
