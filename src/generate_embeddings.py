@@ -37,11 +37,28 @@ if __name__ == "__main__":
 
     embedding_model = load_model(MODEL_ID, device=device)
     embeddings = []
+    embeddings_mapping = {}
+    embeddings = {}
 
+    import pandas as pd
+    embeddings_list = []
+    sentences_list = []
+    sentence_type_list = []
+    episode_ids_list = []
     for id, episode in tqdm(processed_data.items()):
-        embeddings.append(get_embeddings(embedding_model, episode['name']))
-        embeddings.append(get_embeddings(embedding_model, episode['description']))
+        name_emb = get_embeddings(embedding_model, episode['name'])
+        sentence_type_list.append('name')
+        sentences_list.append(episode['name'])
+        embeddings_list.append(name_emb)
+        episode_ids_list.append(id)
 
-    embeddings = np.array(embeddings)
+        desc_emb = get_embeddings(embedding_model, episode['description'])
+        sentence_type_list.append('description')
+        sentences_list.append(episode['description'])
+        embeddings_list.append(desc_emb)
+        episode_ids_list.append(id)
 
-    save_output_file(embeddings, output_dir, "embeddings", "episode_embeddigs.npy", overwrite)
+    embeddings_df = pd.DataFrame(data=zip(sentences_list, embeddings_list, sentence_type_list, episode_ids_list),
+                                 columns=["sentence", "embedding", "sentence_type", "episode_id"])
+
+    save_output_file(embeddings_df, output_dir, "embeddings", "episode_embeddings.csv", overwrite)

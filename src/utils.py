@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import pandas as pd
 import os
 
 def str2bool(string):
@@ -22,8 +23,12 @@ def save_output_file(data, output_dir, stage, filename, overwrite):
     if type(data) == dict:
         assert filename.endswith(".json")
         with open(output_path, "w") as fp:
-            json.dump(output_path, fp, ensure_ascii=False, indent=2)
+            json.dump(data, fp, ensure_ascii=False, indent=2)
 
     if type(data) == np.ndarray:
         assert filename.endswith(".npy")
         np.save(output_path, data, allow_pickle=True)
+
+    if type(data) == pd.DataFrame:
+        assert filename.endswith(".csv")
+        data.to_csv(output_path, index=False)
