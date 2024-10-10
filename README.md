@@ -1,0 +1,1 @@
+![Project flowchart](assets/project_flowchart.png)
