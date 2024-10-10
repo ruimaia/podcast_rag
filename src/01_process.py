@@ -76,10 +76,10 @@ if __name__ == "__main__":
         processed_data[id] = processed_episode
 
     for id, processed_episode in processed_data.items():
-        context_name = f"Episode {id} name: "
+        context_name = f"Think IT podcast by Noesis Episode {id} name: "
         processed_data[id]['name'] = additional_preprocessing(processed_data[id]['name'], context_name)
 
-        context_desc = f"Episode {id} description: "
+        context_desc = f"Think IT podcast by Noesis Episode {id} description: "
         processed_data[id]['description'] = additional_preprocessing(processed_data[id]['description'], context_desc)
 
     # TODO -> repeated code in 00_data_collection.py
